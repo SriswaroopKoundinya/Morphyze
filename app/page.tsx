@@ -21,12 +21,18 @@ export default function Home() {
 
 <div className="flex items-center gap-4">
   <SignInButton mode="modal">
-    <Button variant="outline" size="sm" className="bg-cyan-400 text-black hover:bg-cyan-300">Sign In</Button>
+    <Button variant="outline" size="sm" className="border-white/30 text-white hover:bg-white hover:text-black">
+      Sign In
+    </Button>
   </SignInButton>
+  
   <SignUpButton mode="modal">
-    <Button size="sm" className = "border-2 border-zinc-700 hover:bg-zinc-600" >Sign Up</Button>
+    <Button size="sm" className="bg-white text-black hover:bg-white/90">
+      Sign Up
+    </Button>
   </SignUpButton>
-  <UserButton afterSignOutUrl="/" />
+
+  <UserButton />
 </div>
   </div>
 </nav>
