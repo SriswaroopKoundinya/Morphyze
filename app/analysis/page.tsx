@@ -51,6 +51,63 @@ export default function AnalysisPage() {
   );
 };
 
+const calculateFaceWidthHeight = (landmarks: any) => {
+  // Approximate landmarks
+
+  const leftCheek = landmarks[234];
+  const rightCheek = landmarks[454];
+
+  const forehead = landmarks[10];
+  const chin = landmarks[152];
+
+  const width = distance2D(leftCheek, rightCheek);
+  const height = distance2D(forehead, chin);
+
+  const ratio = width / height;
+
+  let percentile = "";
+  let assessment = "";
+
+  // Approximate aesthetic bell curve
+  if (ratio < 0.72) {
+    percentile = "<10th";
+    assessment = "Very Narrow";
+  } else if (ratio < 0.76) {
+    percentile = "25th";
+    assessment = "Narrow";
+  } else if (ratio < 0.81) {
+    percentile = "50th";
+    assessment = "Average";
+  } else if (ratio < 0.86) {
+    percentile = "75th";
+    assessment = "Wide";
+  } else if (ratio < 0.91) {
+    percentile = "90th";
+    assessment = "Very Wide";
+  } else {
+    percentile = ">95th";
+    assessment = "Extremely Wide";
+  }
+
+  // Smooth score centered around 0.83
+  const ideal = 0.83;
+
+  const difference = Math.abs(ratio - ideal);
+
+  const score = Math.max(
+    0,
+    Math.round(100 - difference * 500)
+  );
+
+  return {
+    ratio: ratio.toFixed(3),
+    score,
+    percentile,
+    assessment,
+    ideal: "0.80 - 0.85"
+  };
+};
+
 const calculateLooksmaxScores = (landmarks: any) => {
   // -----------------------------
   // Chin : Philtrum Ratio
@@ -93,6 +150,8 @@ const calculateLooksmaxScores = (landmarks: any) => {
     rating = "Extreme";
   }
 
+const faceWidthHeight = calculateFaceWidthHeight(landmarks);
+
   // Placeholder harmony score
   const harmonyScore = Math.floor(65 + Math.random() * 30);
 
@@ -109,6 +168,8 @@ const calculateLooksmaxScores = (landmarks: any) => {
       chinPhiltrumRatio: chinPhiltrumRatio.toFixed(2),
       chinPhiltrumPercentile: percentile,
       chinPhiltrumRating: rating,
+	  
+	  faceWidthHeight
     },
 
     strengths: ["Symmetrical features", "Decent jaw projection"],
@@ -190,6 +251,53 @@ const calculateLooksmaxScores = (landmarks: any) => {
     </div>
 
   </div>
+</div>
+
+<div className="mt-8 border-t border-zinc-700 pt-6">
+
+  <h4 className="text-2xl font-semibold mb-4">
+    Face Width : Height Ratio
+  </h4>
+
+  <div className="space-y-3">
+
+    <div className="flex justify-between">
+      <span>Ratio</span>
+      <span className="font-semibold">
+        {results.keyMetrics.faceWidthHeight.ratio}
+      </span>
+    </div>
+
+    <div className="flex justify-between">
+      <span>Ideal</span>
+      <span>
+        {results.keyMetrics.faceWidthHeight.ideal}
+      </span>
+    </div>
+
+    <div className="flex justify-between">
+      <span>Percentile</span>
+      <span>
+        {results.keyMetrics.faceWidthHeight.percentile}
+      </span>
+    </div>
+
+    <div className="flex justify-between">
+      <span>Assessment</span>
+      <span className="text-cyan-400">
+        {results.keyMetrics.faceWidthHeight.assessment}
+      </span>
+    </div>
+
+    <div className="flex justify-between">
+      <span>Score</span>
+      <span className="font-bold">
+        {results.keyMetrics.faceWidthHeight.score}/100
+      </span>
+    </div>
+
+  </div>
+
 </div>
 			  
               <div className="grid grid-cols-2 gap-8 mt-10">
