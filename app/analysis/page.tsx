@@ -44,22 +44,78 @@ export default function AnalysisPage() {
     }
   };
 
-  const calculateLooksmaxScores = (landmarks: any) => {
-    // Basic example - expand this heavily
-    const harmonyScore = Math.floor(65 + Math.random() * 30);
+  const distance2D = (a: any, b: any) => {
+  return Math.hypot(
+    b.x - a.x,
+    b.y - a.y
+  );
+};
 
-    return {
-      harmonyScore,
-      pslRating: (harmonyScore / 12).toFixed(1) + "/8",
-      keyMetrics: {
-        facialThirds: "Balanced",
-        eyeSpacing: "Good",
-        jawlineAngle: "Strong"
-      },
-      strengths: ["Symmetrical features", "Decent jaw projection"],
-      improvements: ["Mewing for better chin", "Consider skincare routine"]
-    };
+const calculateLooksmaxScores = (landmarks: any) => {
+  // -----------------------------
+  // Chin : Philtrum Ratio
+  // -----------------------------
+
+  // Approximate MediaPipe landmarks
+  const subnasale = landmarks[2];      // Base of nose
+  const upperLip = landmarks[13];      // Top lip center
+  const lowerLip = landmarks[14];      // Bottom lip center
+  const chin = landmarks[152];         // Bottom of chin
+
+  const philtrumLength = distance2D(subnasale, upperLip);
+  const chinLength = distance2D(lowerLip, chin);
+
+  const chinPhiltrumRatio = chinLength / philtrumLength;
+
+  let percentile = "";
+  let rating = "";
+
+  if (chinPhiltrumRatio < 1.6) {
+    percentile = "<15th";
+    rating = "Very Low";
+  } else if (chinPhiltrumRatio < 1.8) {
+    percentile = "30th";
+    rating = "Below Average";
+  } else if (chinPhiltrumRatio < 1.9) {
+    percentile = "40th";
+    rating = "Average";
+  } else if (chinPhiltrumRatio <= 2.25) {
+    percentile = "50th–70th";
+    rating = "Ideal";
+  } else if (chinPhiltrumRatio <= 2.4) {
+    percentile = "85th";
+    rating = "Strong";
+  } else if (chinPhiltrumRatio <= 2.5) {
+    percentile = "90th";
+    rating = "Very Strong";
+  } else {
+    percentile = ">95th";
+    rating = "Extreme";
+  }
+
+  // Placeholder harmony score
+  const harmonyScore = Math.floor(65 + Math.random() * 30);
+
+  return {
+    harmonyScore,
+
+    pslRating: (harmonyScore / 12).toFixed(1) + "/8",
+
+    keyMetrics: {
+      facialThirds: "Balanced",
+      eyeSpacing: "Good",
+      jawlineAngle: "Strong",
+
+      chinPhiltrumRatio: chinPhiltrumRatio.toFixed(2),
+      chinPhiltrumPercentile: percentile,
+      chinPhiltrumRating: rating,
+    },
+
+    strengths: ["Symmetrical features", "Decent jaw projection"],
+
+    improvements: ["Mewing for better chin", "Consider skincare routine"]
   };
+};
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -105,6 +161,37 @@ export default function AnalysisPage() {
               <div className="text-7xl font-bold text-cyan-400 mb-4">{results.harmonyScore}/100</div>
               <div className="text-3xl mb-8">PSL Rating: <span className="font-bold">{results.pslRating}</span></div>
               
+			  <div className="mt-8 border-t border-zinc-700 pt-6">
+  <h4 className="text-2xl font-semibold mb-4">
+    Facial Measurements
+  </h4>
+
+  <div className="space-y-3 text-lg">
+
+    <div className="flex justify-between">
+      <span>Chin : Philtrum Ratio</span>
+      <span className="font-semibold">
+        {results.keyMetrics.chinPhiltrumRatio}
+      </span>
+    </div>
+
+    <div className="flex justify-between">
+      <span>Percentile</span>
+      <span className="font-semibold">
+        {results.keyMetrics.chinPhiltrumPercentile}
+      </span>
+    </div>
+
+    <div className="flex justify-between">
+      <span>Assessment</span>
+      <span className="font-semibold text-cyan-400">
+        {results.keyMetrics.chinPhiltrumRating}
+      </span>
+    </div>
+
+  </div>
+</div>
+			  
               <div className="grid grid-cols-2 gap-8 mt-10">
                 <div>
                   <h4 className="font-semibold mb-3">Strengths</h4>
